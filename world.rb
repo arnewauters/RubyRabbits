@@ -47,6 +47,8 @@ class World
 			end
 		end
 
+		@animals = @rabbits.zip(@foxes).flatten.compact
+
 		puts "Breeded and deployed #{@rabbits.length} rabbits..."
 		puts "Starting simulation sequence in 5 seconds!"
 
@@ -59,8 +61,19 @@ class World
 	def start
 		i = 0
 		while i < 25 do
+			
+			@animals.each do |animal|
+
+				animal.act()
+
+				if animal.dead
+					animal = nil
+				end
+			end
+			
 			system("cls")
 			draw_board()
+			sleep(2)
 			i += 1
 		end
 
