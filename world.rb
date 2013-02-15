@@ -7,12 +7,12 @@ class World
 		fieldSize = 50
 
 		puts "Initializing world..."
-		@locations = Array.new(fieldSize) { Array.new(fieldSize) }
+		@locations = Array.new(fieldSize) { Array.new(fieldSize, nil) }
 
 		puts "Breeding random number of foxes between 2 and 5..."
-		@foxes = Array.new(2 + rand(3), Fox.new())
+		foxes = Array.new(2 + rand(3), Fox.new(@locations))
 		
-		@foxes.each do |fox|
+		foxes.each do |fox|
 			notAssigned = true
 
 			while notAssigned
@@ -27,12 +27,12 @@ class World
 			end
 		end
 
-		puts "Breeded and deployed #{@foxes.length} foxes..."
+		puts "Breeded and deployed #{foxes.length} foxes..."
 
 		puts "Breeding random number of rabbits between 5 and 25..."
-		@rabbits = Array.new(5 + rand(20), Rabbit.new())
+		rabbits = Array.new(5 + rand(20), Rabbit.new(@locations))
 		
-		@rabbits.each do |rabbit|
+		rabbits.each do |rabbit|
 			notAssigned = true
 
 			while notAssigned
@@ -47,9 +47,9 @@ class World
 			end
 		end
 
-		@animals = @rabbits.zip(@foxes).flatten.compact
+		@animals = rabbits | foxes
 
-		puts "Breeded and deployed #{@rabbits.length} rabbits..."
+		puts "Breeded and deployed #{rabbits.length} rabbits..."
 		puts "Starting simulation sequence in 5 seconds!"
 
 		sleep(5)
@@ -59,21 +59,27 @@ class World
 	end
 
 	def start
+		
 		i = 0
 		while i < 25 do
 			
-			@animals.each do |animal|
-
-				animal.act()
-
-				if animal.dead
-					animal = nil
+			allSpots = @locations.flatten
+			
+			allSpots.each do |spot| 
+				if spot
+					spot.act
+					if spot.dead
+						@locations.each do |location|
+							location[location.index(spot)] = nil if location.include? spot
+						end
+					end
 				end
 			end
-			
+
+			sleep(0.5)
 			system("cls")
 			draw_board()
-			sleep(2)
+			
 			i += 1
 		end
 
