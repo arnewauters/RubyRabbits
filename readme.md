@@ -10,4 +10,4 @@ For win32 users:
 
 # Running the application
 
-// ruby ./program.rb
+ruby ./program.rb

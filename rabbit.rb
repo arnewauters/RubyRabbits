@@ -4,7 +4,7 @@ require 'colored'
 
 class Rabbit < Animal
 	
-	def initialize(locations)
+	def initialize(grid, location)
 		super
 		@breedingAge = 0 + rand(1)
 		@maximumAge = 8 + rand(4)
@@ -15,23 +15,19 @@ class Rabbit < Animal
 	def checkFood
 	end
 
-	def breed
+	def breed(coordinates)
 		breedingFactor = rand(100)
 
 		if(breedingFactor <= (@breedingProbability * 100))
 			
-			possibleDropLocations = calculateFreeAdjacentLocations
 			litter = rand(@maxLitterSize)
-			litter = possibleDropLocations.count if (litter > possibleDropLocations.count)
-			selectedLocations = possibleDropLocations.sample(litter)
+			litter = coordinates.count if (litter > coordinates.count)
+			selectedLocations = coordinates.sample(litter)
 
 			selectedLocations.each do |loc|
-				@locations[loc[1]][loc[0]] = Rabbit.new(@locations)
+				@grid[loc[1]][loc[0]] = Rabbit.new(@grid, loc)
 			end
 		end
-	end
-
-	def move
 	end
 
 	def to_s

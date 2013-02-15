@@ -1,57 +1,34 @@
 class Animal
 
 	attr_accessor :dead
+	attr_reader :location
 
-	def initialize(locations)
+	def initialize(grid, location)
 		@age = 0
 		@dead = false
-		@locations = locations
+		@grid = grid
+		@location = location
 	end
 
-	def act
-
+	def act(coordinates)
 		@age += 1
 		@dead = true if @age > @maximumAge
 
 		checkFood
 		
-		unless @dead
-			breed
-			move
-		end
-
+		breed(coordinates) unless @dead
 	end
 
-	def calculateFreeAdjacentLocations
-		x, y = -1
-		coordinates = Array.new()
-		
-		@locations.each do |location|
-			if location.include? self
-				y = @locations.index(location)
-				x = location.index(self)
+	def move(coordinates)
+		if coordinates.count > 0
+		    selectedLocation = coordinates.sample
 
-				#puts "Current location is #{x} and #{y}"
-
-				for i in -1..1
-		   			for z in -1..1
-		   				unless (i == 0 && z == 0)
-			   				newY = y + i
-			   				newX = x + z
-
-			   				if newY >= 0 && newY < @locations.length && newX >= 0 && newX < location.length
-			   					unless @locations[newY][newX]
-			   						coordinates << [newX, newY]
-			   					end
-			   				end 
-		   				end
-		   			end
-				end
-			end
+			@grid[@location[1]][@location[0]] = nil
+			
+			@location = selectedLocation
+			@grid[selectedLocation[1]][selectedLocation[0]] = self
+		else
+			@dead = true
 		end
-
-		#coordinates.each { |co| puts "#{co[0]} and #{co[1]}"  }
-
-		return coordinates
 	end
 end

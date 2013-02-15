@@ -4,7 +4,7 @@ require 'colored'
 
 class Fox < Animal
 	
-	def initialize(locations)
+	def initialize(grid, location)
 		super
 		@breedingAge = 1 + rand(1)
 		@maximumAge = 2 + rand(4) + rand(4)
@@ -20,10 +20,7 @@ class Fox < Animal
 		end
 	end
 
-	def breed
-	end
-
-	def move
+	def breed(coordinates)
 	end
 
 	def to_s
