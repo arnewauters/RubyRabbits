@@ -7,91 +7,119 @@ class World
 		fieldSize = 50
 
 		puts "Initializing world..."
-		@grid = Array.new(fieldSize) { Array.new(fieldSize, nil) }
+		@grid = Array.new(fieldSize) { Array.new(fieldSize, :free) }
 
-		puts "Breeding random number of foxes between 2 and 5..."
+		draw_board()
+		gets
 		
 		numfoxes = 2 + rand(3)
 
-		for i in 0..numfoxes
+		for i in 0..numfoxes-1
 			notAssigned = true
 
 			while notAssigned
 				x = rand(fieldSize)
 				y = rand(fieldSize)
 
-				unless @grid[x][y] 
-					@grid[x][y] = Fox.new(@grid, [x, y])
+				if @grid[x][y] == :free
+					@grid[x][y] = Fox.new()
 					notAssigned = false
 				end
 			end
 			i += 1
 		end
-		puts "Breeded and deployed #{numfoxes} foxes..."
 		
-		puts "Breeding random number of rabbits between 5 and 25..."
+		numrabbits = 5 + rand(10)
 
-		numrabbits = 5 + rand(20)
-
-		for z in 0..numrabbits
+		for z in 0..numrabbits-1
 			notAssigned = true
 
 			while notAssigned
 				x = rand(fieldSize)
 				y = rand(fieldSize)
 
-				unless @grid[x][y] 
-					@grid[x][y] = Rabbit.new(@grid, [x, y])
+				if @grid[x][y] == :free
+					@grid[x][y] = Rabbit.new()
 					notAssigned = false
-					#puts "Assigned rabbit to x: #{x} and y: #{y}"
 				end
 			end
 			z += 1
 		end
 		
-		puts "Breeded and deployed #{numrabbits} rabbits..."
-
-		puts "Starting simulation sequence in 5 seconds!"
-		sleep(5)
 		system("cls")
+		draw_board()
+		puts "Breeded and deployed #{numfoxes} foxes..."
+		puts "Breeded and deployed #{numrabbits} rabbits..."
+		gets
 
 		start()
 	end
 
 	def start
 		
-		i = 0
-		while i < 25 do
+		pass = 0
+		while pass < 25 do
 			
-			allSpots = @grid.flatten
-			
-			allSpots.each do |spot| 
-				if spot
-					
-					coordinates = calculateFreeAdjacentLocations(spot)
-					spot.act(coordinates)
-					
-					if spot.dead
-						@grid[spot.location[1]][spot.location[0]] = nil
-					else
-						coordinates = calculateFreeAdjacentLocations(spot)
-						spot.move(coordinates)
-					end
-				end
-			end
+			i = 0
 
-			sleep(0.5)
+			handled =[]
+
+			while i < @grid.length  do
+		   		i2 = 0
+		   		while i2 < @grid[i].length do
+		   		
+		   			item = @grid[i][i2]
+
+			   		if(item.kind_of?(Rabbit) || item.kind_of?(Fox))
+						if (! handled.include? item)
+							
+							handled << item
+
+							item.act
+
+							if item.dead
+								@grid[i][i2] = :grave
+							else
+								coordinates = calculateFreeAdjacentLocations([i2, i])
+								babies = item.breed(coordinates.count)
+
+								if (babies)
+									selectedLocations = coordinates.sample(babies.count)
+										selectedLocations.each do |loc|
+								 		@grid[loc[1]][loc[0]] = babies[selectedLocations.index(loc)]
+								 		handled << babies[selectedLocations.index(loc)]
+									end
+								end
+
+								coordinates = calculateFreeAdjacentLocations([i2, i])
+							    chosenPath = item.move(coordinates)
+							    
+							    if item.dead
+									@grid[i][i2] = :grave
+								else
+									@grid[chosenPath[1]][chosenPath[0]] = item
+									@grid[i][i2] = :used
+								end
+							end
+						end
+					end		
+					i2 += 1
+		   		end
+		   		i += 1
+		   	end
+			
 			system("cls")
 			draw_board()
-			puts "Pass #{i}"
-
-			i += 1
+			puts "Pass #{pass}"
+			
+			sleep(0.5)
+			pass += 1
 		end
 	end
 
 	private
 
-	def calculateFreeAdjacentLocations(animal)
+	def calculateFreeAdjacentLocations(coordinate)
 		x, y = -1
 		coordinates = Array.new()
 		
@@ -100,11 +128,11 @@ class World
 	   			for z in -1..1
 	   				unless (i == 0 && z == 0)
 
-		   				newY = animal.location[1] + i
-		   				newX = animal.location[0] + z
+		   				newY = coordinate[1] + i
+		   				newX = coordinate[0] + z
 
 		   				if newY >= 0 && newY < @grid.length && newX >= 0 && newX < gridRow.length
-		   					unless @grid[newY][newX]
+		   					if @grid[newY][newX] == :free || @grid[newY][newX] == :used || @grid[newY][newX] == :grave
 		   						coordinates << [newX, newY]
 		   					end
 		   				end 
@@ -123,11 +151,12 @@ class World
 		   i2 = 0
 		   
 		   while i2 < @grid[i].length do
-				if(@grid[i][i2])
-					toDraw << @grid[i][i2].to_s
-				else
-					toDraw << "-"
-				end
+				
+				toDraw << "+" if (@grid[i][i2] == :grave) 
+				toDraw << "." if (@grid[i][i2] == :used) 
+				toDraw << "-" if (@grid[i][i2] == :free)  
+				toDraw << @grid[i][i2].to_s if(@grid[i][i2].kind_of?(Rabbit) || @grid[i][i2].kind_of?(Fox))
+				
 				i2 += 1
 		   end
 	

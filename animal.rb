@@ -1,34 +1,27 @@
 class Animal
+	attr_reader :dead
 
-	attr_accessor :dead
-	attr_reader :location
-
-	def initialize(grid, location)
+	def initialize()
 		@age = 0
 		@dead = false
-		@grid = grid
-		@location = location
 	end
 
-	def act(coordinates)
+	def act
 		@age += 1
-		@dead = true if @age > @maximumAge
+		if @age > @maximumAge
+			@dead = true
+		end
 
 		checkFood
-		
-		breed(coordinates) unless @dead
 	end
 
 	def move(coordinates)
 		if coordinates.count > 0
 		    selectedLocation = coordinates.sample
-
-			@grid[@location[1]][@location[0]] = nil
-			
-			@location = selectedLocation
-			@grid[selectedLocation[1]][selectedLocation[0]] = self
-		else
-			@dead = true
+			return selectedLocation
 		end
+		
+		@dead = true
+		return nil
 	end
 end

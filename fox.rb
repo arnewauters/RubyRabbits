@@ -4,13 +4,14 @@ require 'colored'
 
 class Fox < Animal
 	
-	def initialize(grid, location)
-		super
+	def initialize()
 		@breedingAge = 1 + rand(1)
 		@maximumAge = 2 + rand(4) + rand(4)
 		@breedingProbability = 0.25
 		@maxLitterSize = 4
 		@foodlevel = 5
+
+		super
 	end
 
 	def checkFood
@@ -20,7 +21,19 @@ class Fox < Animal
 		end
 	end
 
-	def breed(coordinates)
+	def breed(maximum)
+		
+		breedingFactor = rand(100)
+
+		if(breedingFactor <= (@breedingProbability * 100))
+			
+			litter = rand(@maxLitterSize)
+			litter = maximum if (litter > maximum)
+			
+			return Array.new(litter, Fox.new());
+		end
+
+		return nil
 	end
 
 	def to_s

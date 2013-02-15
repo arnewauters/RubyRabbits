@@ -4,30 +4,31 @@ require 'colored'
 
 class Rabbit < Animal
 	
-	def initialize(grid, location)
-		super
+	def initialize()
+		
 		@breedingAge = 0 + rand(1)
-		@maximumAge = 8 + rand(4)
+		@maximumAge = 20 + rand(4)
 		@breedingProbability = 0.25
 		@maxLitterSize = 8
+		super
 	end
 
 	def checkFood
 	end
 
-	def breed(coordinates)
+	def breed(maximum)
+		
 		breedingFactor = rand(100)
 
 		if(breedingFactor <= (@breedingProbability * 100))
 			
 			litter = rand(@maxLitterSize)
-			litter = coordinates.count if (litter > coordinates.count)
-			selectedLocations = coordinates.sample(litter)
-
-			selectedLocations.each do |loc|
-				@grid[loc[1]][loc[0]] = Rabbit.new(@grid, loc)
-			end
+			litter = maximum if (litter > maximum)
+			
+			return Array.new(litter, Rabbit.new());
 		end
+
+		return nil
 	end
 
 	def to_s
