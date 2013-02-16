@@ -1,5 +1,6 @@
 require_relative 'rabbit'
 require_relative 'fox'
+require_relative 'coordinate'
 
 class World
 
@@ -8,7 +9,8 @@ class World
 		puts "Initializing world..."
 		
 		@grid = Hash.new(:free)
-		
+		@coordinates = []
+
 		numfoxes = 2 + rand(3)	
 		gridSize = fieldSize * fieldSize	
 		range = 1..gridSize
@@ -20,15 +22,19 @@ class World
 
 		for x in 1 ..fieldSize
 			for y in 1..fieldSize
+				
+				coordinate = Coordinate.new(x, y)
+				@coordinates << coordinate
+
 				index = ((y - 1) * fieldSize) + x 
 				
 				if foxindexes.include? index
-					@grid[[x, y]] = Fox.new()
+					@grid[coordinate] = Fox.new()
 					next
 				end
 
 				if rabbittindexes.include? index
-					@grid[[x, y]] = Rabbit.new()
+					@grid[coordinate] = Rabbit.new()
 					next
 				end
 			end
@@ -41,10 +47,8 @@ class World
 		while pass < 100 do
 			
 			act
-			
-			move
-			
 			breed
+			#move
 			
 			draw_board()
 			puts "Pass #{pass}"
@@ -58,37 +62,34 @@ class World
 	private
 
 	def act
-		for x in 1 .. 50
-			for y in 1..50
-				item = @grid[[x,y]]
-				if(item.kind_of?(Animal))
-					item.sleeping = false
-					item.act
-					if item.dead
-						item = nil
-						@grid[[x,y]] = :grave
-					end
+		@coordinates.each do |coordinate|
+			item = @grid[coordinate]
+			
+			if(item.kind_of?(Animal))
+				item.sleeping = false
+				item.act
+				if item.dead
+					item = nil
+					@grid[coordinate] = :grave
 				end
 			end
 		end
 	end
 
 	def breed
-		for x in 1 .. 50
-			for y in 1..50
-				item = @grid[[x, y]]
+		@coordinates.each do |coordinate|
+			item = @grid[coordinate]
+			
+			if(item.kind_of?(Animal))
+				if(item.age != -1 && !item.dead)
+					
+					freeCoordinates = calculateFreeAdjacentLocations(coordinate)
+					babies = item.breed(freeCoordinates.count)
 
-				if(item.kind_of?(Animal))
-					if(item.age != -1 && !item.dead)
-						
-						coordinates = calculateFreeAdjacentLocations([x, y])
-						babies = item.breed(coordinates.count)
-
-						if (babies)
-							selectedLocations = coordinates.sample(babies.count)
-							selectedLocations.each do |loc|
-						 		@grid[[loc[0],loc[1]]] = babies[selectedLocations.index(loc)]
-							end
+					if (babies)
+						dropCoordinates = freeCoordinates.sample(babies.count)
+						dropCoordinates.each do |dropCoordinate|
+					 		@grid[dropCoordinate] = babies[dropCoordinates.index(dropCoordinate)]
 						end
 					end
 				end
@@ -97,26 +98,21 @@ class World
 	end
 
 	def move
-		for x in 1 .. 50
-			for y in 1..50
-				item = @grid[[x, y]]
-				if(item.kind_of?(Animal))
-					if !item.sleeping
-							
-							if item.dead
-								puts "wtf?"
-							end
-
-							item.sleeping = true
-							
-							coordinates = calculateFreeAdjacentLocations([x, y])
-						    if coordinates.count == 0
-								@grid[[x, y]] = :grave
-							else
-								loc = item.move(coordinates)
-								@grid[[loc[0],loc[1]]] = item
-								@grid[[x, y]] = :used
-							end
+		@coordinates.each do |coordinate|
+			item = @grid[coordinate]
+				
+			if(item.kind_of?(Animal))
+				if !item.sleeping
+						
+					item.sleeping = true
+					
+					freeCoordinates = calculateFreeAdjacentLocations(coordinate)
+				    if freeCoordinates.count == 0
+						@grid[coordinate] = :grave
+					else
+						newCoordinate = item.move(freeCoordinates)
+						@grid[newCoordinate] = item
+						@grid[coordinate] = :used
 					end
 				end
 			end
@@ -124,40 +120,46 @@ class World
 	end
 
 	def calculateFreeAdjacentLocations(coordinate)
-		coordinates = []
+		freeCoordinates = []
 		for i in -1..1
    			for z in -1..1
    				unless (i == 0 && z == 0)
-	   				newX = coordinate[0] + i
-	   				newY = coordinate[1] + z
+	   				newX = coordinate.x + i
+	   				newY = coordinate.y + z
 
 	   				if newY > 0 && newY < 51 && newX > 0 && newX < 51
-	   					item = @grid[[newX, newY]]
-	   					if(!item.kind_of?(Animal))
-	   						toAdd = [newX, newY]
-	   						coordinates << toAdd
+	   					
+	   					adjacentCoordinate = @coordinates.select { |co| co.x == newX && co.y == newY}
+						item = @grid[adjacentCoordinate]
+
+	   					unless item.kind_of?(Animal)
+	   						freeCoordinates << adjacentCoordinate
 	   					end
 	   				end 
    				end
    			end
 		end
-		return coordinates
+		return freeCoordinates
 	end
 
 	def draw_board
 		toDraw = ""
-		for y in 1 .. 50
-			for x in 1..50
-				item = @grid[[x, y]] 
-				toDraw << "+" if (item == :grave) 
-				toDraw << "." if (item == :used) 
-				toDraw << "-" if (item == :free) 
-				toDraw << "o" if (item == :marker)  
-				if(item.kind_of?(Animal))
-						toDraw << item.to_s 
-				end
+		@coordinates.each do |coordinate|
+			
+			item = @grid[coordinate]
+
+			toDraw << "+" if (item == :grave) 
+			toDraw << "." if (item == :used) 
+			toDraw << "-" if (item == :free) 
+			toDraw << "o" if (item == :marker)  
+			
+			if(item.kind_of?(Animal))
+				toDraw << item.to_s 
 			end
-			toDraw << "\n"
+
+			if(coordinate.y == 50)
+				toDraw << "\n"
+			end
 		end
 		puts toDraw
 	end
