@@ -56,7 +56,8 @@ class World
 			draw_board()
 			
 			puts "Pass #{pass}"
-			sleep(0.5)
+			gets
+			#sleep(0.5)
 			system("cls")
 			
 			pass += 1
@@ -123,6 +124,24 @@ class World
 
 					 	(dx + dy == 1)
 					}
+
+					if item.kind_of?(Fox)
+						eatableBunnies = {}
+						freeCoordinates.each do |freeCoordinate|
+							scannedItem = @grid[freeCoordinate]
+							if scannedItem.kind_of?(Rabbit)
+								eatableBunnies[freeCoordinate] = scannedItem
+							end
+						end
+
+						if eatableBunnies.count > 0
+							prayLocation = eatableBunnies.keys.sample
+							item.eat(@grid[prayLocation])
+							@grid[prayLocation] = item
+							puts "bunny died"
+							next
+						end
+					end
 
 				    if freeCoordinates.count == 0
 						@grid[coordinate] = :grave
