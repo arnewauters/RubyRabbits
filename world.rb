@@ -5,6 +5,7 @@ require_relative 'coordinate'
 class World
 
 	def initialize
+
 		fieldSize = 50
 		puts "Initializing world..."
 		
@@ -30,6 +31,7 @@ class World
 				
 				if foxindexes.include? index
 					@grid[coordinate] = Fox.new()
+					coordinate2 = Coordinate.new(x, y)
 					next
 				end
 
@@ -39,6 +41,7 @@ class World
 				end
 			end
 		end 
+
 		start()
 	end
 
@@ -47,8 +50,8 @@ class World
 		while pass < 100 do
 			
 			act
-			breed
-			#move
+			#breed
+			move
 			
 			draw_board()
 			puts "Pass #{pass}"
@@ -65,7 +68,7 @@ class World
 		@coordinates.each do |coordinate|
 			item = @grid[coordinate]
 			
-			if(item.kind_of?(Animal))
+			if item.kind_of?(Animal)
 				item.sleeping = false
 				item.act
 				if item.dead
@@ -100,17 +103,25 @@ class World
 	def move
 		@coordinates.each do |coordinate|
 			item = @grid[coordinate]
-				
-			if(item.kind_of?(Animal))
+
+			if item.kind_of?(Animal)
+
 				if !item.sleeping
-						
+					
 					item.sleeping = true
 					
-					freeCoordinates = calculateFreeAdjacentLocations(coordinate)
+					freeCoordinates = @coordinates.select { |co|
+					 	dx = (coordinate.x - co.x).abs
+					 	dy = (coordinate.y - co.y).abs
+
+					 	(dx + dy == 1)
+					}
+
 				    if freeCoordinates.count == 0
 						@grid[coordinate] = :grave
 					else
-						newCoordinate = item.move(freeCoordinates)
+
+						newCoordinate = freeCoordinates.sample
 						@grid[newCoordinate] = item
 						@grid[coordinate] = :used
 					end
