@@ -2,26 +2,21 @@ class Animal
 	attr_reader :dead
 
 	def initialize()
-		@age = 0
+		@age = -1
 		@dead = false
 	end
 
 	def act
 		@age += 1
 		if @age > @maximumAge
-			@dead = true
+			#@dead = true
 		end
 
 		checkFood
 	end
 
 	def move(coordinates)
-		if coordinates.count > 0
-		    selectedLocation = coordinates.sample
-			return selectedLocation
-		end
-		
-		@dead = true
-		return nil
+		selectedLocation = coordinates.sample
+		return selectedLocation
 	end
 end

@@ -8,32 +8,38 @@ class Fox < Animal
 		@breedingAge = 1 + rand(1)
 		@maximumAge = 2 + rand(4) + rand(4)
 		@breedingProbability = 0.25
-		@maxLitterSize = 4
+		@maxLitterSize = 6
 		@foodlevel = 5
 
 		super
 	end
 
 	def checkFood
-		@foodlevel -= 1
 		if (@foodlevel == 0)
-			@dead = true
+		@foodlevel -= 1
+			#@dead = true
 		end
 	end
 
 	def breed(maximum)
 		
-		breedingFactor = rand(100)
-
-		if(breedingFactor <= (@breedingProbability * 100))
-			
-			litter = rand(@maxLitterSize)
-			litter = maximum if (litter > maximum)
-			
-			return Array.new(litter, Fox.new());
+		if @age >= @breedingAge
+			return Array.new(7, Fox.new());
 		end
 
 		return nil
+
+		# breedingFactor = rand(100)
+
+		# if(breedingFactor <= (@breedingProbability * 100))
+			
+		# 	litter = rand(@maxLitterSize)
+		# 	litter = maximum if (litter > maximum)
+			
+		# 	return Array.new(litter, Fox.new());
+		# end
+
+		# return nil
 	end
 
 	def to_s

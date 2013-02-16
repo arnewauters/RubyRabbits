@@ -7,9 +7,9 @@ class Rabbit < Animal
 	def initialize()
 		
 		@breedingAge = 0 + rand(1)
-		@maximumAge = 20 + rand(4)
+		@maximumAge = 8 + rand(4)
 		@breedingProbability = 0.25
-		@maxLitterSize = 8
+		@maxLitterSize = 6
 		super
 	end
 
