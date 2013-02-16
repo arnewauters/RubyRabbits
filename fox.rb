@@ -5,9 +5,9 @@ require 'colored'
 class Fox < Animal
 	
 	def initialize()
-		@breedingAge = 1 + rand(1)
-		@maximumAge = 2 + rand(4) + rand(4)
-		@breedingProbability = 0.25
+		@breedingAge = 1
+		@maximumAge = 3
+		@breedingProbability = 1
 		@maxLitterSize = 6
 		@foodlevel = 5
 
@@ -23,23 +23,21 @@ class Fox < Animal
 
 	def breed(maximum)
 		
-		if @age >= @breedingAge
-			return Array.new(7, Fox.new());
+		if (maximum == 0 || @age < @breedingAge)
+			return nil
 		end
 
-		return nil
+		breedingFactor = rand(100)
 
-		# breedingFactor = rand(100)
-
-		# if(breedingFactor <= (@breedingProbability * 100))
+		if(breedingFactor <= (@breedingProbability * 100))
 			
-		# 	litter = rand(@maxLitterSize)
-		# 	litter = maximum if (litter > maximum)
+			litter = rand(@maxLitterSize)
+			litter = maximum if (litter > maximum)
 			
-		# 	return Array.new(litter, Fox.new());
-		# end
-
-		# return nil
+			return Array.new(litter, Fox.new());
+		else
+			return nil
+		end	
 	end
 
 	def to_s

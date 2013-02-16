@@ -18,15 +18,15 @@ class Rabbit < Animal
 
 	def breed(maximum)
 		
-		breedingFactor = rand(100)
+		# breedingFactor = rand(100)
 
-		if(breedingFactor <= (@breedingProbability * 100))
+		# if(breedingFactor <= (@breedingProbability * 100))
 			
-			litter = rand(@maxLitterSize)
-			litter = maximum if (litter > maximum)
+		# 	litter = rand(@maxLitterSize)
+		# 	litter = maximum if (litter > maximum)
 			
-			return Array.new(litter, Rabbit.new());
-		end
+		# 	return Array.new(litter, Rabbit.new());
+		# end
 
 		return nil
 	end
