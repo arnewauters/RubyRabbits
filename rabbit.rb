@@ -8,7 +8,7 @@ class Rabbit < Animal
 		
 		@breedingAge = 0 + rand(1)
 		@maximumAge = 8 + rand(4)
-		@breedingProbability = 0.25
+		@breedingProbability = 0.5
 		@maxLitterSize = 6
 		super
 	end
@@ -18,21 +18,26 @@ class Rabbit < Animal
 
 	def breed(maximum)
 		
-		# breedingFactor = rand(100)
+		if (maximum == 0 || @age < @breedingAge)
+			return nil
+		end
 
-		# if(breedingFactor <= (@breedingProbability * 100))
-			
-		# 	litter = rand(@maxLitterSize)
-		# 	litter = maximum if (litter > maximum)
-			
-		# 	return Array.new(litter, Rabbit.new());
-		# end
+		breedingFactor = rand(100)
 
-		return nil
+		if(breedingFactor <= (@breedingProbability * 100))
+			
+			litter = rand(@maxLitterSize)
+			litter = maximum if (litter > maximum)
+			
+			return Array.new(litter, Rabbit.new());
+		else
+			return nil
+		end	
 	end
 
 	def to_s
 		x = "R"
+
 		if (age < 1)
 			x.yellow
 		else

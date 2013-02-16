@@ -7,7 +7,7 @@ class Fox < Animal
 	def initialize()
 		@breedingAge = 1
 		@maximumAge = 3
-		@breedingProbability = 1
+		@breedingProbability = 0.4
 		@maxLitterSize = 6
 		@foodlevel = 5
 
