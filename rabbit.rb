@@ -33,6 +33,10 @@ class Rabbit < Animal
 
 	def to_s
 		x = "R"
-		x.green
+		if (age < 1)
+			x.yellow
+		else
+			x.green
+		end
 	end
 end

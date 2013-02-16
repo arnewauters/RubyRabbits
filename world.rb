@@ -41,9 +41,10 @@ class World
 		while pass < 100 do
 			
 			act
-			breed
+			
 			move
-
+			
+			breed
 			
 			draw_board()
 			puts "Pass #{pass}"
@@ -60,10 +61,11 @@ class World
 		for x in 1 .. 50
 			for y in 1..50
 				item = @grid[[x,y]]
-				if(item.kind_of?(Rabbit) || item.kind_of?(Fox))
+				if(item.kind_of?(Animal))
 					item.sleeping = false
 					item.act
 					if item.dead
+						item = nil
 						@grid[[x,y]] = :grave
 					end
 				end
@@ -75,8 +77,9 @@ class World
 		for x in 1 .. 50
 			for y in 1..50
 				item = @grid[[x, y]]
-				if(item.kind_of?(Rabbit) || item.kind_of?(Fox))
-					if(item.age != -1)
+
+				if(item.kind_of?(Animal))
+					if(item.age != -1 && !item.dead)
 						
 						coordinates = calculateFreeAdjacentLocations([x, y])
 						babies = item.breed(coordinates.count)
@@ -97,8 +100,13 @@ class World
 		for x in 1 .. 50
 			for y in 1..50
 				item = @grid[[x, y]]
-				if(item.kind_of?(Rabbit) || item.kind_of?(Fox))
+				if(item.kind_of?(Animal))
 					if !item.sleeping
+							
+							if item.dead
+								puts "wtf?"
+							end
+
 							item.sleeping = true
 							
 							coordinates = calculateFreeAdjacentLocations([x, y])
@@ -125,7 +133,7 @@ class World
 
 	   				if newY > 0 && newY < 51 && newX > 0 && newX < 51
 	   					item = @grid[[newX, newY]]
-	   					if(!item.kind_of?(Rabbit) && !item.kind_of?(Fox))
+	   					if(!item.kind_of?(Animal))
 	   						toAdd = [newX, newY]
 	   						coordinates << toAdd
 	   					end
@@ -145,12 +153,8 @@ class World
 				toDraw << "." if (item == :used) 
 				toDraw << "-" if (item == :free) 
 				toDraw << "o" if (item == :marker)  
-				if(item.kind_of?(Rabbit) || item.kind_of?(Fox))
-					if item.age == -1
-						toDraw << "B"
-					else
+				if(item.kind_of?(Animal))
 						toDraw << item.to_s 
-					end
 				end
 			end
 			toDraw << "\n"
