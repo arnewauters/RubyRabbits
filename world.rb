@@ -1,24 +1,25 @@
 require_relative 'rabbit'
 require_relative 'fox'
 require_relative 'coordinate'
+#require "curses"
+#include Curses
 
 class World
 
 	def initialize
 
 		fieldSize = 50
-		puts "Initializing world..."
 		
 		@grid = Hash.new(:free)
 		@coordinates = []
 
-		numfoxes = 2 + rand(3)	
+		numfoxes = 5 + rand(8)	
 		gridSize = fieldSize * fieldSize	
 		range = 1..gridSize
 		range = range.to_a
 		foxindexes = range.sample(numfoxes)
 
-		numrabbits = 5 + rand(10)		
+		numrabbits = 5 + rand(12)		
 		rabbittindexes = range.sample(numrabbits)
 
 		for x in 1 ..fieldSize
@@ -41,7 +42,8 @@ class World
 				end
 			end
 		end 
-
+		
+		system("cls")
 		start()
 	end
 
@@ -56,8 +58,8 @@ class World
 			draw_board()
 			
 			puts "Pass #{pass}"
-			gets
-			#sleep(0.5)
+			
+			sleep(0.5)
 			system("cls")
 			
 			pass += 1
@@ -138,7 +140,6 @@ class World
 							prayLocation = eatableBunnies.keys.sample
 							item.eat(@grid[prayLocation])
 							@grid[prayLocation] = item
-							puts "bunny died"
 							next
 						end
 					end
