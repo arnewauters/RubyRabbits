@@ -44,11 +44,11 @@ class Fox < Animal
 	end
 
 	def to_s
-		x = "F"
-		if (age < 1)
-			x.blue
-		else
-			x.red
-		end
+		return "F"
+		# if (age < 1)
+		# 	x.blue
+		# else
+		# 	x.red
+		# end
 	end
 end

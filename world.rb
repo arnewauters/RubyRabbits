@@ -1,8 +1,9 @@
 require_relative 'rabbit'
 require_relative 'fox'
 require_relative 'coordinate'
-#require "curses"
-#include Curses
+
+require "curses"
+include Curses
 
 class World
 
@@ -49,19 +50,18 @@ class World
 
 	def start
 		pass = 0
-		while pass < 100 do
+		while true do
 			
 			act
 			breed
 			move
 			
 			draw_board()
+			addstr("Pass #{pass}")
 			
-			puts "Pass #{pass}"
-			
-			sleep(0.5)
-			system("cls")
-			
+			refresh
+			sleep(0.250)
+			setpos(0,0)
 			pass += 1
 		end
 	end
@@ -158,24 +158,31 @@ class World
 	end
 
 	def draw_board
-		toDraw = ""
 		@coordinates.each do |coordinate|
 			
 			item = @grid[coordinate]
 
-			toDraw << "+" if (item == :grave) 
-			toDraw << "." if (item == :used) 
-			toDraw << "-" if (item == :free) 
-			toDraw << "o" if (item == :marker)  
+			addstr "+" if (item == :grave) 
+			addstr "." if (item == :used) 
+			addstr "-" if (item == :free) 
+			addstr "o" if (item == :marker)  
 			
-			if(item.kind_of?(Animal))
-				toDraw << item.to_s 
+			if(item.kind_of?(Fox))
+				attron (color_pair(COLOR_RED)) do
+					addstr item.to_s 
+				end
+			end
+
+			if(item.kind_of?(Rabbit))
+				attron (color_pair(COLOR_GREEN)) do
+					addstr item.to_s 
+				end
 			end
 
 			if(coordinate.y == 50)
-				toDraw << "\n"
+				addstr "\n"
 			end
 		end
-		puts toDraw
 	end
 end
+
