@@ -6,17 +6,18 @@ class Fox < Animal
 	
 	def initialize()
 		@breedingAge = 1
-		@maximumAge = 4
-		@breedingProbability = 0.4
-		@maxLitterSize = 6
-		@foodlevel = 5
+		@maximumAge = 8
+		@breedingProbability = 0.5
+		@maxLitterSize = 2
+		@foodlevel = 6
 
 		super
 	end
 
 	def checkFood
-		if (@foodlevel == 0)
 		@foodlevel -= 1
+
+		if (@foodlevel == 0)
 			@dead = true
 		end
 	end
@@ -24,6 +25,7 @@ class Fox < Animal
 	def eat(rabbit)
 		@foodlevel += 4
 	end
+
 	def breed(maximum)
 		
 		if (maximum == 0 || @age < @breedingAge)
