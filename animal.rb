@@ -1,12 +1,15 @@
 class Animal
 	attr_reader :dead, :age
+	attr_accessor:acted
 
 	def initialize()
 		@age = -1
 		@dead = false
+		@acted = false
 	end
 
 	def act
+		@acted = true
 		@age += 1
 		if @age > @maximumAge
 			@dead = true

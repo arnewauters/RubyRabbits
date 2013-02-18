@@ -16,26 +16,27 @@ class World
 		@coordinates = []
 		@adjacentCoordinates = {}
 		@deadCoordinates = []
-		@processedCoordinates = []
 		
 		initialize_grid
 		build_adjacent_coordinates
 
+		system("cls")
 		start()
 	end
 
 	def start
 		pass = 0
-		while pass < 50 do
+		while true do
+			clear
 			
 			act
 			cleanup
 			draw_board
 
-			setpos(54, 1)
+			setpos(56, 1)
 			addstr("Pass: #{pass}")
-
 			refresh
+			
 			#gets
 			pass += 1
 			
@@ -119,24 +120,16 @@ class World
 
 	def act
 		
-		liveAtStart = 0
 		births = 0
 		hunted = 0
 		deathByAgeOrHunger = 0
 		deathBySpace = 0
-		accessInner = 0
-
-		@processedCoordinates.clear
 
 		@coordinates.each do |coordinate|
-			item = @grid[coordinate]
 			
-			if (item.kind_of?(Animal))
-				liveAtStart += 1
-			end
+			item = @grid[coordinate]
 
-			if !(@processedCoordinates.include? coordinate) && item.kind_of?(Animal)
-				accessInner += 1
+			if item.kind_of?(Animal) && !item.acted
 				item.act
 				
 				if item.dead
@@ -159,32 +152,29 @@ class World
 							@grid[prayLocation] = item
 							adjacentCoordinates = @adjacentCoordinates[prayLocation]
 							coordinate = prayLocation
-							@processedCoordinates << prayLocation
 							hunted += 1
 						end
 					end
 
 					adjacentCoordinates.delete_if { |c| @grid[c].kind_of?(Animal) }
 
-					 if adjacentCoordinates.count == 0
+					if adjacentCoordinates.count == 0
 						item.kill
 						deathBySpace += 1
 						@deadCoordinates << coordinate
 					else
-						
 						babies = item.breed(adjacentCoordinates.count)
 
-						if (babies)
+						if babies
 							births += babies.count
 							dropCoordinates = adjacentCoordinates.sample(babies.count)
 							dropCoordinates.each do |dropCoordinate|
 						 		@grid[dropCoordinate] = babies[dropCoordinates.index(dropCoordinate)]
-						 		@processedCoordinates << dropCoordinate
 							end
+
+							adjacentCoordinates.delete_if { |c| @grid[c].kind_of?(Animal) }
 						end
 
-						adjacentCoordinates.delete_if { |c| @grid[c].kind_of?(Animal) }
-						 
 						if adjacentCoordinates.count == 0
 							item.kill
 							deathBySpace += 1
@@ -192,20 +182,22 @@ class World
 						else
 							newCoordinate = adjacentCoordinates.sample
 							@grid[newCoordinate] = item
-							@processedCoordinates << newCoordinate
 							@grid[coordinate] = :used
 						end
 					end
 				end
 			end
+
 		end
 
 		setpos(52, 1)
-		addstr("Access: #{accessInner}, Births: #{births}, Hunted: #{hunted}, Death By Age/Hunger: #{deathByAgeOrHunger}, Death By Space: #{deathBySpace}")
+		addstr("Births: #{births}, Hunted: #{hunted}")
+		setpos(53, 1)
+		addstr("Death By Age/Hunger: #{deathByAgeOrHunger}, Death By Space: #{deathBySpace}")
 	end
 
 	def cleanup
-		setpos(53, 1)
+		setpos(54, 1)
 		addstr("Deaths: #{@deadCoordinates.count}")
 
 		@deadCoordinates.each do |dead| 
@@ -213,6 +205,13 @@ class World
 		end
 
 		@deadCoordinates.clear
+
+		@coordinates.each do |coordinate|
+			item = @grid[coordinate]
+			if item.kind_of?(Animal)
+				item.acted = false
+			end
+		end
 	end
 
 	def draw_board

@@ -9,7 +9,7 @@ class Rabbit < Animal
 		@breedingAge = 1 + rand(1)
 		@maximumAge = 8 + rand(4)
 		@breedingProbability = 0.7
-		@maxLitterSize = 3
+		@maxLitterSize = 6
 		super
 	end
 
@@ -26,7 +26,7 @@ class Rabbit < Animal
 
 		if(breedingFactor <= (@breedingProbability * 100))
 			
-			litter = rand(@maxLitterSize)
+			litter = 2 + rand(@maxLitterSize)
 			litter = maximum if (litter > maximum)
 			
 			return Array.new(litter, Rabbit.new());

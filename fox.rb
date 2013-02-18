@@ -8,7 +8,7 @@ class Fox < Animal
 		@breedingAge = 1
 		@maximumAge = 8
 		@breedingProbability = 0.5
-		@maxLitterSize = 2
+		@maxLitterSize = 3
 		@foodlevel = 6
 
 		super
@@ -23,7 +23,7 @@ class Fox < Animal
 	end
 
 	def eat(rabbit)
-		@foodlevel += 4
+		@foodlevel += 6
 	end
 
 	def breed(maximum)
