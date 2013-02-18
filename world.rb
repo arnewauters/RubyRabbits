@@ -2,7 +2,9 @@ require_relative 'rabbit'
 require_relative 'fox'
 require_relative 'coordinate'
 
-require "curses"
+require 'benchmark'
+
+require 'curses'
 include Curses
 
 class World
@@ -14,13 +16,13 @@ class World
 		@grid = Hash.new(:free)
 		@coordinates = []
 
-		numfoxes = 5 + rand(8)	
+		numfoxes = 100 + rand(8)	
 		gridSize = fieldSize * fieldSize	
 		range = 1..gridSize
 		range = range.to_a
 		foxindexes = range.sample(numfoxes)
 
-		numrabbits = 5 + rand(12)		
+		numrabbits = 800 + rand(12)		
 		rabbittindexes = range.sample(numrabbits)
 
 		for x in 1 ..fieldSize
@@ -52,17 +54,26 @@ class World
 		pass = 0
 		while true do
 			
-			act
-			breed
-			move
-			
-			draw_board()
+			# act
+			# breed
+			# move
+			# draw_board
+
+			Benchmark.bm(7) do |x|
+			  x.report("act:")   { act }
+			  x.report("breed:") { breed }
+			  x.report("move:")  { move }
+			  x.report("render:")  { draw_board }
+			end
+
 			addstr("Pass #{pass}")
+
 			
+
 			refresh
-			sleep(0.250)
 			setpos(0,0)
 			pass += 1
+			gets
 		end
 	end
 
@@ -90,17 +101,12 @@ class World
 			if(item.kind_of?(Animal))
 				if(item.age != -1 && !item.dead)
 					
-					freeCoordinates = @coordinates.select { |co|
-					 	dx = (coordinate.x - co.x).abs
-					 	dy = (coordinate.y - co.y).abs
+					adjacentCoordinates = calculate_free_adjacent_coordinates(coordinate)
 
-					 	(dx + dy == 1)
-					}
-
-					babies = item.breed(freeCoordinates.count)
+					babies = item.breed(adjacentCoordinates.count)
 
 					if (babies)
-						dropCoordinates = freeCoordinates.sample(babies.count)
+						dropCoordinates = adjacentCoordinates.sample(babies.count)
 						dropCoordinates.each do |dropCoordinate|
 					 		@grid[dropCoordinate] = babies[dropCoordinates.index(dropCoordinate)]
 						end
@@ -120,16 +126,11 @@ class World
 					
 					item.sleeping = true
 					
-					freeCoordinates = @coordinates.select { |co|
-					 	dx = (coordinate.x - co.x).abs
-					 	dy = (coordinate.y - co.y).abs
-
-					 	(dx + dy == 1)
-					}
+					adjacentCoordinates = calculate_free_adjacent_coordinates(coordinate)
 
 					if item.kind_of?(Fox)
 						eatableBunnies = {}
-						freeCoordinates.each do |freeCoordinate|
+						adjacentCoordinates.each do |freeCoordinate|
 							scannedItem = @grid[freeCoordinate]
 							if scannedItem.kind_of?(Rabbit)
 								eatableBunnies[freeCoordinate] = scannedItem
@@ -144,17 +145,34 @@ class World
 						end
 					end
 
-				    if freeCoordinates.count == 0
+				    if adjacentCoordinates.count == 0
 						@grid[coordinate] = :grave
+						item = nil
 					else
-
-						newCoordinate = freeCoordinates.sample
+						newCoordinate = adjacentCoordinates.sample
 						@grid[newCoordinate] = item
 						@grid[coordinate] = :used
 					end
 				end
 			end
 		end
+	end
+
+	def calculate_free_adjacent_coordinates(coordinate)
+		adjacentCoordinates = []
+
+		adjacentCoordinates << Coordinate.new(coordinate.x - 1, coordinate.y - 1)
+		adjacentCoordinates << Coordinate.new(coordinate.x, coordinate.y - 1)
+		adjacentCoordinates << Coordinate.new(coordinate.x + 1, coordinate.y - 1)
+
+		adjacentCoordinates << Coordinate.new(coordinate.x - 1, coordinate.y)
+		adjacentCoordinates << Coordinate.new(coordinate.x + 1, coordinate.y)
+		
+		adjacentCoordinates << Coordinate.new(coordinate.x - 1, coordinate.y + 1)
+		adjacentCoordinates << Coordinate.new(coordinate.x, coordinate.y + 1)
+		adjacentCoordinates << Coordinate.new(coordinate.x + 1, coordinate.y + 1)
+
+		adjacentCoordinates.delete_if { |c| @coordinates.include? c && @grid[c].kind_of?(Animal) }
 	end
 
 	def draw_board
